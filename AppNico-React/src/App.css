@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    background-color: #fafafa;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    background-color: black;
+    color: white;
+    font-size: 0.8em;
+    padding: 1em;
+    width: 100%;
+    text-align: center;
+}
+
+.tarjetas {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 2em;
+    gap: 2em;
+    margin-top: 100px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.tarjeta {
+    width: 300px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: white;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tarjeta-header {
+    background-color: rgb(30, 176, 113);
+    color: white;
+    font-weight: bold;
+    padding: 1em 0;
+    font-size: 1.1em;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.tarjeta-content {
+    margin: 1em 0em;
+}
