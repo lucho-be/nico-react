@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Tarjeta({ titulo, moneda }) {
-    const [value, setValue] = useState(null);
+export default function Tarjeta({ titulo, moneda, importe }) {
+    /* const [value, setValue] = useState(null);
 
     async function obtenerDolarBlue() {
         try {
@@ -20,16 +20,15 @@ export default function Tarjeta({ titulo, moneda }) {
     }
 
     useEffect(() => {
-        obtenerDolarBlue(); // se llama cuando la tarjeta se monta
+        obtenerDolarBlue();
         }
-    , []);
+    , []); */
 
     return (
         <div className="tarjeta">
             <div className="tarjeta-header">{titulo}</div>
             <div className="tarjeta-content">
-                <p>{moneda === "pesos" ? "$" : "USD$"}</p>
-                {value !== null ? value : "Cargando..."}
+                <p>{moneda === "pesos" ? "$ " : "USD$ "}{importe}</p>
             </div>
         </div>
     );

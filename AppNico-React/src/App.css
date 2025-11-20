@@ -26,17 +26,15 @@ header {
     display: flex;
     flex-wrap: wrap;
     padding: 2em;
-    gap: 2em;
+    gap: 3em;
     margin-top: 100px;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+    align-content: center;
+    justify-content: center;
 }
 
 .tarjeta {
     width: 300px;
     border-radius: 12px;
-    overflow: hidden;
     background-color: white;
     text-align: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -54,4 +52,11 @@ header {
 
 .tarjeta-content {
     margin: 1em 0em;
+}
+
+.historial {
+    padding: 2em;
+    margin: 2em;
+    border: solid 1px #ddd;
+    border-radius: 2em;
 }
