@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 
 export default function Tarjeta({ titulo, moneda }) {
-    const [value, setValue] = useState(0);
+    const [value, setValue] = useState(null);
 
     async function obtenerDolarBlue() {
         try {
@@ -11,20 +11,26 @@ export default function Tarjeta({ titulo, moneda }) {
             }
 
             const datos = await respuesta.json();
-            console.log("Dólar blue:", datos.blue.value_sell);
-            let valorBlue = datos.blue.value_sell;
+            const valorBlue = datos.blue.value_sell;
 
+            setValue(valorBlue); // acá actualizás el estado
         } catch (error) {
             console.error("Hubo un problema:", error.message);
-            alert(error);
         }
     }
 
+    useEffect(() => {
+        obtenerDolarBlue(); // se llama cuando la tarjeta se monta
+        }
+    , []);
 
     return (
         <div className="tarjeta">
             <div className="tarjeta-header">{titulo}</div>
-            <div className="tarjeta-content"><p>{moneda == "pesos" ? "$" : "USD$"}</p>{valorBlue}</div>
+            <div className="tarjeta-content">
+                <p>{moneda === "pesos" ? "$" : "USD$"}</p>
+                {value !== null ? value : "Cargando..."}
+            </div>
         </div>
-    )
+    );
 }
