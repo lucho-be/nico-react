@@ -27,7 +27,7 @@ function App() {
 
   useEffect(() => {
     obtenerDolarBlue();
-    setDeuda(15);
+    setDeuda(3733);
   }
     , []);
 
