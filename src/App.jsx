@@ -2,6 +2,7 @@ import './App.css'
 import Tarjeta from './components/Tarjeta'
 import Header from './components/Header'
 import { useState, useEffect } from 'react'
+import Button from './components/Button';
 
 
 function App() {
@@ -27,7 +28,7 @@ function App() {
 
   useEffect(() => {
     obtenerDolarBlue();
-    setDeuda(3733);
+    setDeuda(3455);
   }
     , []);
 
@@ -45,8 +46,9 @@ function App() {
       </div>
       <div className="historial">
         <h2 style={{ marginBottom: "1em" }}>Historial de pagos</h2>
+        <Button text="Registrar pago"/>
         <hr />
-        <p style={{ marginTop: "1em" }}>No hay pagos realizados aún.</p>
+        <p>No hay pagos realizados aún.</p>
       </div>
     </>
   )
