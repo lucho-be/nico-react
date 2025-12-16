@@ -8,10 +8,25 @@ import Modal from './components/Modal';
 function App() {
 
   const [value, setValue] = useState(null);
-  const [deuda, setDeuda] = useState(0);
+  const [deuda, setDeuda] = useState(() => {
+  const guardado = localStorage.getItem("deuda");
+  return guardado ? Number(guardado) : 3455;
+});
 
-  // Estado nuevo: historial real
-  const [pagos, setPagos] = useState([]);
+const [pagos, setPagos] = useState(() => {
+  const guardado = localStorage.getItem("pagos");
+  return guardado ? JSON.parse(guardado) : [];
+});
+
+useEffect(() => {
+  localStorage.setItem("pagos", JSON.stringify(pagos));
+}, [pagos]);
+
+useEffect(() => {
+  localStorage.setItem("deuda", deuda);
+}, [deuda]);
+
+
 
   async function obtenerDolarBlue() {
     try {
@@ -32,7 +47,6 @@ function App() {
 
   useEffect(() => {
     obtenerDolarBlue();
-    setDeuda(3455);
   }, []);
 
   // Función que recibe los datos del modal
@@ -40,6 +54,12 @@ function App() {
   setPagos([...pagos, nuevoPago]);
   setDeuda(prev => prev - nuevoPago.importe);
 }
+
+function eliminarPago(index, importe) {
+  setPagos(prev => prev.filter((_, i) => i !== index));
+  setDeuda(prev => prev + importe);
+}
+
 
 
   return (
@@ -70,7 +90,7 @@ function App() {
         <h2 style={{ marginBottom: "1em" }}>Historial de pagos</h2>
 
         {/* Botón que abre el modal de Bootstrap */}
-        <Button text="Registrar pago" />
+        <Button text="Registrar pago" disabled={deuda <= 0} />
 
         {/* Modal recibe la función para registrar */}
         <Modal onRegistrar={agregarPago} />
@@ -83,10 +103,28 @@ function App() {
         )}
 
         {pagos.length > 0 && pagos.map((p, i) => (
-          <div key={i} style={{ marginBottom: "0.5em" }}>
-            <strong>${p.importe} USD</strong> — {p.fecha}
-          </div>
-        ))}
+  <div
+    key={i}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "0.5em",
+      marginBottom: "0.5em"
+    }}
+  >
+    <span>
+      <strong>${p.importe} USD</strong> —{" "}
+      {new Date(p.fecha).toLocaleDateString("es-AR")}
+    </span>
+
+    <i
+  className="bi bi-trash"
+  style={{ cursor: "pointer", color: "crimson" }}
+  onClick={() => eliminarPago(i, p.importe)}
+  title="Eliminar pago"
+/>
+  </div>
+))}
       </div>
     </>
   );

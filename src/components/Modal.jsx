@@ -4,10 +4,19 @@ export default function Modal({ onRegistrar }) {
     const importe = document.getElementById("importePagado").value;
     const fecha = document.getElementById("fechaPago").value;
 
+    if (!importe || !fecha) {
+    alert("Completá todos los campos");
+    return;
+  }
+
     onRegistrar({
       importe: Number(importe),
       fecha
     });
+
+    const modal = document.getElementById("registrarPagoModal");
+const instance = window.bootstrap.Modal.getInstance(modal);
+instance.hide();
   }
 
   return (
@@ -29,7 +38,8 @@ export default function Modal({ onRegistrar }) {
             </label>
             <div className="input-group mb-3">
               <span className="input-group-text">$USD</span>
-              <input type="number" className="form-control" id="importePagado" />
+              <input type="number" className="form-control" id="importePagado" required
+  min="1" />
               <span className="input-group-text">.00</span>
             </div>
 
@@ -37,7 +47,7 @@ export default function Modal({ onRegistrar }) {
               Fecha de pago
             </label>
             <div className="mb-3">
-              <input type="date" className="form-control" id="fechaPago" />
+              <input type="date" className="form-control" id="fechaPago" required/>
             </div>
           </div>
 
@@ -45,7 +55,6 @@ export default function Modal({ onRegistrar }) {
             <button 
               type="button" 
               className="btn btn-success"
-              data-bs-dismiss="modal"
               onClick={handleRegistrar}
             >
               Registrar

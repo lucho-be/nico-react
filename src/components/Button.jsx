@@ -1,16 +1,13 @@
-export default function Button ({ text }) {
-
+export default function Button({ text, disabled }) {
   return (
-    <>
-      <button
-        type="button"
-        className="btn btn-primary"
-        data-bs-toggle="modal"
-data-bs-target="#registrarPagoModal"
-
-      >
-        {text}
-      </button>
-    </>
+    <button
+      type="button"
+      className={`btn btn-success ${disabled ? "disabled" : ""}`}
+      data-bs-toggle="modal"
+      data-bs-target="#registrarPagoModal"
+      disabled={disabled}
+    >
+      {text}
+    </button>
   );
 }
