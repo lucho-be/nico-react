@@ -1,75 +1,94 @@
 import './App.css'
 import Tarjeta from './components/Tarjeta'
 import Header from './components/Header'
+import Button from './components/Button'
+import Modal from './components/Modal'
+
 import { useState, useEffect } from 'react'
-import Button from './components/Button';
-import Modal from './components/Modal';
+import { collection, onSnapshot, addDoc, deleteDoc, doc } from "firebase/firestore"
+import { db } from "./firebase"
 
 function App() {
 
-  const [value, setValue] = useState(null);
-  const [deuda, setDeuda] = useState(() => {
-  const guardado = localStorage.getItem("deuda");
-  return guardado ? Number(guardado) : 3455;
-});
+  const DEUDA_INICIAL = 3455
 
-const [pagos, setPagos] = useState(() => {
-  const guardado = localStorage.getItem("pagos");
-  return guardado ? JSON.parse(guardado) : [];
-});
+  const [value, setValue] = useState(null)
+  const [pagos, setPagos] = useState([])
 
-useEffect(() => {
-  localStorage.setItem("pagos", JSON.stringify(pagos));
-}, [pagos]);
+  // 👉 deuda derivada (no se guarda, se calcula)
+  const deuda = pagos.reduce(
+    (acc, p) => acc - p.importe,
+    DEUDA_INICIAL
+  )
 
-useEffect(() => {
-  localStorage.setItem("deuda", deuda);
-}, [deuda]);
-
-
-
+  // ======================
+  // DÓLAR BLUE
+  // ======================
   async function obtenerDolarBlue() {
     try {
-      const respuesta = await fetch("https://api.bluelytics.com.ar/v2/latest");
-      if (!respuesta.ok) {
-        throw new Error("Error al obtener los datos del dólar blue");
-      }
+      const respuesta = await fetch("https://api.bluelytics.com.ar/v2/latest")
+      if (!respuesta.ok) throw new Error("Error dólar blue")
 
-      const datos = await respuesta.json();
-      const valorBlue = datos.blue.value_sell;
-
-      setValue(valorBlue);
+      const datos = await respuesta.json()
+      setValue(datos.blue.value_sell)
 
     } catch (error) {
-      console.error("Hubo un problema:", error.message);
+      console.error(error.message)
     }
   }
 
   useEffect(() => {
-    obtenerDolarBlue();
-  }, []);
+    obtenerDolarBlue()
+  }, [])
 
-  // Función que recibe los datos del modal
-  function agregarPago(nuevoPago) {
-  setPagos([...pagos, nuevoPago]);
-  setDeuda(prev => prev - nuevoPago.importe);
-}
+  // ======================
+  // FIRESTORE – LEER PAGOS
+  // ======================
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "pagos"), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setPagos(data)
+    })
 
-function eliminarPago(index, importe) {
-  setPagos(prev => prev.filter((_, i) => i !== index));
-  setDeuda(prev => prev + importe);
-}
+    return () => unsub()
+  }, [])
 
+  // ======================
+  // AGREGAR PAGO
+  // ======================
+  async function agregarPago(nuevoPago) {
+    await addDoc(collection(db, "pagos"), {
+      importe: nuevoPago.importe,
+      fecha: nuevoPago.fecha,
+      createdAt: new Date()
+    })
+  }
 
+  // ======================
+  // ELIMINAR PAGO
+  // ======================
+  async function eliminarPago(id) {
+    await deleteDoc(doc(db, "pagos", id))
+  }
 
+  // ======================
+  // RENDER
+  // ======================
   return (
     <>
       <Header />
 
       <div className="tarjetas">
-        <Tarjeta titulo="Deuda actual" moneda="dolar" importe={deuda} />
+        <Tarjeta
+          titulo="Deuda actual"
+          moneda="dolar"
+          importe={deuda}
+        />
 
-        <Tarjeta 
+        <Tarjeta
           titulo="Deuda en pesos"
           moneda="pesos"
           importe={
@@ -82,53 +101,57 @@ function eliminarPago(index, importe) {
         <Tarjeta
           titulo="Valor USD blue"
           moneda="pesos"
-          importe={value !== null ? value.toLocaleString("es-AR") : "Cargando..."}
+          importe={value !== null
+            ? value.toLocaleString("es-AR")
+            : "Cargando..."
+          }
         />
       </div>
 
       <div className="historial">
-        <h2 style={{ marginBottom: "1em" }}>Historial de pagos</h2>
+        <h2 style={{ marginBottom: "1em" }}>
+          Historial de pagos
+        </h2>
 
-        {/* Botón que abre el modal de Bootstrap */}
-        <Button text="Registrar pago" disabled={deuda <= 0} />
+        <Button
+          text="Registrar pago"
+          disabled={deuda <= 0}
+        />
 
-        {/* Modal recibe la función para registrar */}
         <Modal onRegistrar={agregarPago} />
 
         <hr />
 
-        {/* Historial real */}
         {pagos.length === 0 && (
           <p>No hay pagos realizados aún.</p>
         )}
 
-        {pagos.length > 0 && pagos.map((p, i) => (
-  <div
-    key={i}
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "0.5em",
-      marginBottom: "0.5em"
-    }}
-  >
-    <span>
-      <strong>${p.importe} USD</strong> —{" "}
-      {new Date(p.fecha).toLocaleDateString("es-AR")}
-    </span>
+        {pagos.map((p) => (
+          <div
+            key={p.id}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5em",
+              marginBottom: "0.5em"
+            }}
+          >
+            <span>
+              <strong>${p.importe} USD</strong> —{" "}
+              {new Date(p.fecha).toLocaleDateString("es-AR")}
+            </span>
 
-    <i
-  className="bi bi-trash"
-  style={{ cursor: "pointer", color: "crimson" }}
-  onClick={() => eliminarPago(i, p.importe)}
-  title="Eliminar pago"
-/>
-  </div>
-))}
+            <i
+              className="bi bi-trash"
+              style={{ cursor: "pointer", color: "crimson" }}
+              onClick={() => eliminarPago(p.id)}
+              title="Eliminar pago"
+            />
+          </div>
+        ))}
       </div>
     </>
-  );
+  )
 }
 
-export default App;
-
+export default App
